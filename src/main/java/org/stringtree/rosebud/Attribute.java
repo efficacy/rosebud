@@ -22,6 +22,10 @@ public class Attribute implements Comparable<Attribute> {
 	public Attribute(String from, String rel, long seq, String to) {
 		this(from, rel, seq, to, System.currentTimeMillis());
 	}
+
+	public Attribute(String from, String rel, String to) {
+		this(from, rel, 0, to, System.currentTimeMillis());
+	}
 	
 	public static String getId(String from, String rel, long seq) {
 		return "Link[from=" + from + ",rel=" + rel + ",seq=" + seq + "]";
