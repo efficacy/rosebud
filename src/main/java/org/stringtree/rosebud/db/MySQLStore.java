@@ -55,7 +55,7 @@ public class MySQLStore implements Store {
 						results.getString("rel"),
 						results.getLong("seq"),
 						results.getString("dest"),
-						results.getTimestamp("modified").getTime()
+						results.getLong("modified")
 				));
 				return null;
 			}
@@ -66,13 +66,14 @@ public class MySQLStore implements Store {
 	@Override
 	public void put(Entity entity) {
 		for (final Attribute attribute : entity) {
-			db.update("replace into attribute (src,rel,seq,dest) values (?,?,?,?)", new StatementPopulator() {
+			db.update("replace into attribute (src,rel,seq,dest,modified) values (?,?,?,?,?)", new StatementPopulator() {
 				@Override
 				public void populate(PreparedStatement ps) throws SQLException {
 					ps.setString(1, attribute.from);
 					ps.setString(2, attribute.rel);
 					ps.setLong(3, attribute.seq);
 					ps.setString(4, attribute.to);
+					ps.setLong(5, attribute.stamp);
 				}
 			}); 
 		}

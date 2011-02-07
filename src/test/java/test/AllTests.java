@@ -10,6 +10,7 @@ public class AllTests extends TestCase {
 
         ret.addTestSuite(DatabaseStoreTest.class);
         ret.addTestSuite(MemoryStoreTest.class);
+        ret.addTestSuite(AttributeTest.class);
         ret.addTestSuite(EmptyTest.class);
 
         return ret;

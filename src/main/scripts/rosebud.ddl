@@ -4,6 +4,6 @@ create table attribute (
   rel varchar(128),
   seq bigint,
   dest text,
-  modified timestamp,
+  modified bigint,
   primary key (src,rel,seq)
 );
