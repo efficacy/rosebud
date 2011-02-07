@@ -3,6 +3,7 @@ package test;
 import junit.framework.TestCase;
 
 import org.stringtree.rosebud.Entity;
+import org.stringtree.rosebud.MutableEntity;
 import org.stringtree.rosebud.Store;
 
 public abstract class StoreTestCase extends TestCase {
@@ -19,13 +20,13 @@ public abstract class StoreTestCase extends TestCase {
 	}
 	
 	public void testEmptyEntity() {
-		store.put(new Entity("E1"));
+		store.put(new MutableEntity("E1"));
 		Entity out = store.get("E1");
 		assertNull(out);
 	}
 	
 	public void testNonEmptyEntity() {
-		Entity in = new Entity("E1");
+		MutableEntity in = new MutableEntity("E1");
 		in.setAttributeValue("name", "Frank");
 		store.put(in);
 		

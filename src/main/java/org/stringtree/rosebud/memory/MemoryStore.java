@@ -28,7 +28,7 @@ public class MemoryStore implements Store {
 	@Override
 	public void put(Entity entity) {
 		if (null != entity && !entity.isEmpty()) {
-			entities.put(entity.id, entity);
+			entities.put(entity.getId(), entity);
 		}
 	}
 
