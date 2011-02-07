@@ -21,8 +21,7 @@ public abstract class StoreTestCase extends TestCase {
 	
 	public void testEmptyEntity() {
 		store.put(new MutableEntity("E1"));
-		Entity out = store.get("E1");
-		assertNull(out);
+		assertNull(store.get("E1"));
 	}
 	
 	public void testNonEmptyEntity() {
@@ -33,5 +32,11 @@ public abstract class StoreTestCase extends TestCase {
 		Entity out = store.get("E1");
 		assertNotNull(out);
 		assertEquals("Frank", out.getAttributeValue("name"));
+	}
+	
+	public void testDelete() {
+		testNonEmptyEntity();
+		store.delete("E1");
+		assertNull(store.get("E1"));
 	}
 }

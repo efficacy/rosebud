@@ -30,9 +30,13 @@ public class MySQLStore implements Store {
 	}
 
 	@Override
-	public void delete(String id) {
-		// TODO Auto-generated method stub
-
+	public void delete(final String id) {
+		db.update("delete from attribute where src=?", new StatementPopulator() {
+			@Override
+			public void populate(PreparedStatement ps) throws SQLException {
+				ps.setString(1, id);
+			}
+		});
 	}
 
 	@SuppressWarnings("unchecked")

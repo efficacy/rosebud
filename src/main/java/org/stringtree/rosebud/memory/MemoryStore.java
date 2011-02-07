@@ -16,8 +16,7 @@ public class MemoryStore implements Store {
 
 	@Override
 	public void delete(String id) {
-		// TODO Auto-generated method stub
-
+		entities.remove(id);
 	}
 
 	@Override
@@ -30,6 +29,11 @@ public class MemoryStore implements Store {
 		if (null != entity && !entity.isEmpty()) {
 			entities.put(entity.getId(), entity);
 		}
+	}
+
+	@Override
+	public void clear() {
+		entities.clear();
 	}
 
 }
