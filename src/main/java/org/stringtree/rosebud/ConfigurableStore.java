@@ -1,5 +1,8 @@
 package org.stringtree.rosebud;
 
+import org.stringtree.finder.StringFinder;
+
 public interface ConfigurableStore extends Store {
-	void configure() throws Exception;
+	boolean create(StringFinder context) throws Exception;
+	boolean configure(StringFinder context) throws Exception;
 }

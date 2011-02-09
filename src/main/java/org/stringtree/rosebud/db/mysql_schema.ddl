@@ -1,6 +1,6 @@
-drop database if exists rosebud;
-create database rosebud;
-drop user rosebud;
-create user rosebud identified by 'rosebud';
-grant all privileges on rosebud.* to rosebud identified by 'rosebud';
-use rosebud;
+drop database if exists ${db.schema};
+create database ${db.schema};
+drop user ${db.user};
+create user ${db.user} identified by '${db.password}';
+grant all privileges on ${db.schema}.* to ${db.user} identified by '${db.password}';
+use ${db.schema};

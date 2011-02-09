@@ -13,13 +13,13 @@ import javax.sql.DataSource;
 import org.stringtree.db.CollectingResultRowListener;
 import org.stringtree.db.DatabaseWrapper;
 import org.stringtree.db.StatementPopulator;
+import org.stringtree.finder.StringFinder;
 import org.stringtree.rosebud.Attribute;
 import org.stringtree.rosebud.ConfigurableStore;
 import org.stringtree.rosebud.Entity;
 import org.stringtree.rosebud.MutableEntity;
 
 public class MySQLStore implements ConfigurableStore {
-	
 	DatabaseWrapper db;
 
 	public MySQLStore(DataSource ds, boolean clear) {
@@ -31,8 +31,14 @@ public class MySQLStore implements ConfigurableStore {
 		this(ds, false);
 	}
 	
-	public void configure() throws SQLException, IOException {
+	public boolean create(StringFinder context) throws SQLException, IOException {
+		db.scriptResource(MySQLStore.class, "mysql_schema.ddl", context);
+		return true;
+	}
+	
+	public boolean configure(StringFinder context) throws SQLException, IOException {
 		db.scriptResource(MySQLStore.class, "mysql_tables.ddl");
+		return true;
 	}
 
 	@Override
