@@ -1,5 +1,6 @@
 package org.stringtree.rosebud.db;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,17 +12,25 @@ import org.stringtree.db.CollectingResultRowListener;
 import org.stringtree.db.DatabaseWrapper;
 import org.stringtree.db.StatementPopulator;
 import org.stringtree.rosebud.Attribute;
+import org.stringtree.rosebud.ConfigurableStore;
 import org.stringtree.rosebud.Entity;
 import org.stringtree.rosebud.MutableEntity;
-import org.stringtree.rosebud.Store;
 
-public class MySQLStore implements Store {
+public class MySQLStore implements ConfigurableStore {
 	
 	DatabaseWrapper db;
 
 	public MySQLStore(DataSource ds, boolean clear) {
 		db = new DatabaseWrapper(ds);
 		if (clear) clear();
+	}
+
+	public MySQLStore(DataSource ds) {
+		this(ds, false);
+	}
+	
+	public void configure() throws SQLException, IOException {
+		db.scriptResource(MySQLStore.class, "mysql_tables.ddl");
 	}
 
 	@Override
