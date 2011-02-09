@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -72,19 +74,39 @@ public class MySQLStore implements ConfigurableStore {
 		return attributes.isEmpty() ? null : new MutableEntity(id, attributes);
 	}
 
+	private static final String PUT_DML = "replace into attribute (src,rel,seq,dest,modified) values ";
+	int maxLength = 1024;
+	
 	@Override
 	public void put(Entity entity) {
-		for (final Attribute attribute : entity) {
-			db.update("replace into attribute (src,rel,seq,dest,modified) values (?,?,?,?,?)", new StatementPopulator() {
-				@Override
-				public void populate(PreparedStatement ps) throws SQLException {
-					ps.setString(1, attribute.from);
-					ps.setString(2, attribute.rel);
-					ps.setLong(3, attribute.seq);
-					ps.setString(4, attribute.to);
-					ps.setLong(5, attribute.stamp);
+		if (!entity.isEmpty()) {
+			StringBuffer buf = new StringBuffer(PUT_DML);
+			List<Object> values = new ArrayList<Object>();
+			int count = 0;
+			for (final Attribute attribute : entity) {
+				if (count > 0) buf.append(",");
+				buf.append("(?,?,?,?,?)");
+				values.add(attribute.from);
+				values.add(attribute.rel);
+				values.add(attribute.seq);
+				values.add(attribute.to);
+				values.add(attribute.stamp);
+
+				if (buf.length() > maxLength) {
+					putChunk(buf, values);
+					count = 0;
+				} else {
+					++count;
 				}
-			}); 
+			}
+			
+			putChunk(buf, values);
 		}
+	}
+
+	private void putChunk(StringBuffer buf, List<Object> values) {
+		db.update(buf.toString(), values);
+		buf.setLength(PUT_DML.length());
+		values.clear();
 	}
 }
