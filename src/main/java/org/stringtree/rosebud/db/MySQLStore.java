@@ -21,6 +21,25 @@ import org.stringtree.rosebud.MutableEntity;
 
 public class MySQLStore implements ConfigurableStore {
 	DatabaseWrapper db;
+	
+	static final String CREATE =
+		"drop database if exists ${db.schema};" +
+		"create database ${db.schema};" +
+		"drop user ${db.user};" +
+		"create user ${db.user} identified by '${db.password}';" +
+		"grant all privileges on ${db.schema}.* to ${db.user} identified by '${db.password}';" +
+		"use ${db.schema};";
+	
+	static final String CONFIGURE =
+		"drop table if exists attribute;" +
+		"create table attribute (" +
+		"  src varchar(128)," +
+		"  rel varchar(128)," +
+		"  seq bigint," +
+		"  dest text," +
+		"  modified bigint," +
+		"  primary key (src,rel,seq)" +
+		");";
 
 	public MySQLStore(DataSource ds, boolean clear) {
 		db = new DatabaseWrapper(ds);
@@ -32,12 +51,12 @@ public class MySQLStore implements ConfigurableStore {
 	}
 	
 	public boolean create(StringFinder context) throws SQLException, IOException {
-		db.scriptResource(MySQLStore.class, "mysql_schema.ddl", context);
+		db.scriptString(CREATE, context);
 		return true;
 	}
 	
 	public boolean configure(StringFinder context) throws SQLException, IOException {
-		db.scriptResource(MySQLStore.class, "mysql_tables.ddl");
+		db.scriptString(CONFIGURE);
 		return true;
 	}
 
