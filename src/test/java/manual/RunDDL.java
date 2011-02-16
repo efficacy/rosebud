@@ -19,7 +19,7 @@ public class RunDDL {
 			System.out.println("Sucessfully created database for " + store.getClass());
 		}
 		if (ok) {
-			store.configure(config);
+			store.create(config);
 			System.out.println("Sucessfully configured database for " + store.getClass());
 		} else {
 			System.out.println("failed to configure database for " + store.getClass());
