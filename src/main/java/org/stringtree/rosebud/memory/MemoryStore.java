@@ -1,8 +1,11 @@
 package org.stringtree.rosebud.memory;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
+import org.stringtree.rosebud.Attribute;
 import org.stringtree.rosebud.Entity;
 import org.stringtree.rosebud.MutableEntity;
 import org.stringtree.rosebud.Store;
@@ -42,6 +45,33 @@ public class MemoryStore implements Store {
 	@Override
 	public void clear() {
 		entities.clear();
+	}
+
+	@Override
+	public Collection<String> match(Attribute pattern) {
+		Collection<String> ret = new HashSet<String>();
+		
+		for (Entity entity : entities.values()) {
+			for (Attribute candidate : entity) {
+				if (matchAttribute(candidate, pattern)) {
+					ret.add(candidate.from);
+				}
+			}
+			
+		}
+		
+		return ret;
+	}
+	
+	private boolean matchAttribute(Attribute candidate, Attribute pattern) {
+		boolean ret = true;
+		
+		if (null != pattern.from) ret &= pattern.from.equals(candidate.from);
+		if (null != pattern.rel) ret &= pattern.rel.equals(candidate.rel);
+		if (Attribute.NO_SEQ != pattern.seq) ret &= (pattern.seq == candidate.seq);
+		if (null != pattern.to) ret &= pattern.to.equals(candidate.to);
+		
+		return ret;
 	}
 
 }

@@ -129,4 +129,32 @@ public class MySQLStore implements ConfigurableStore {
 		buf.setLength(PUT_DML.length());
 		values.clear();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Collection<String> match(Attribute attribute) {
+		List<Object> args = new ArrayList<Object>();
+		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute where");
+		addColumnMatch(query, "src", attribute.from, args);
+		addColumnMatch(query, "rel", attribute.rel, args);
+		addColumnMatch(query, "seq", attribute.seq, args);
+		addColumnMatch(query, "dest", attribute.to, args);
+System.err.println("MySQLStore about to execute [" + query + "]");
+		return (Collection<String>) db.query(query.toString(), new CollectingResultRowListener<String>() {
+			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
+				add(results.getString("src"));
+				return null;
+			}
+		}, args.toArray());
+	}
+
+	private void addColumnMatch(StringBuilder query, String colname, Object colvalue, List<Object> args) {
+		if (null != colvalue) {
+			if (!args.isEmpty()) query.append(" and"); 
+			query.append(" ");
+			query.append(colname);
+			query.append("=?");
+			args.add(colvalue);
+		}
+	}
 }

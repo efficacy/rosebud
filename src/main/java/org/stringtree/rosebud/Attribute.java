@@ -3,6 +3,8 @@ package org.stringtree.rosebud;
 import org.stringtree.util.Utils;
 
 public class Attribute implements Comparable<Attribute> {
+	public static final long NO_SEQ = Long.MIN_VALUE;
+	
 	public final String from;
 	public final String rel;
 	public final long seq;
@@ -59,6 +61,6 @@ public class Attribute implements Comparable<Attribute> {
 	}
 	
 	public int hashCode() {
-		return text.hashCode();
+		return 24761 ^ text.hashCode();
 	}
 }
