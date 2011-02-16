@@ -34,6 +34,21 @@ public abstract class StoreTestCase extends TestCase {
 		assertEquals("Frank", out.getAttributeValue("name"));
 	}
 	
+	public void testSeparatePutToSameEntity() {
+		MutableEntity in = new MutableEntity("E1");
+		in.setAttributeValue("name", "Frank");
+		store.put(in);
+		
+		in = new MutableEntity("E1");
+		in.setAttributeValue("wife", "Margaret");
+		store.put(in);
+		
+		Entity out = store.get("E1");
+		assertNotNull(out);
+		assertEquals("Frank", out.getAttributeValue("name"));
+		assertEquals("Margaret", out.getAttributeValue("wife"));
+	}
+	
 	public void testDelete() {
 		testNonEmptyEntity();
 		store.delete("E1");

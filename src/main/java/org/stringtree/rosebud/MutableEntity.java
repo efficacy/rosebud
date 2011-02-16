@@ -23,6 +23,17 @@ public class MutableEntity implements Entity {
 		this(id);
 		setAttributes(collection);
 	}
+	
+	public MutableEntity(Entity other) {
+		this(other.getId());
+		merge(other);
+	}
+
+	public void merge(Entity other) {
+		for (Attribute attribute : other) {
+			setAttribute(attribute);
+		}
+	}
 
 	public void setAttributes(Collection<Attribute> collection) {
 		clear();

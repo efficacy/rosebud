@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.stringtree.rosebud.Entity;
+import org.stringtree.rosebud.MutableEntity;
 import org.stringtree.rosebud.Store;
 
 public class MemoryStore implements Store {
@@ -27,7 +28,14 @@ public class MemoryStore implements Store {
 	@Override
 	public void put(Entity entity) {
 		if (null != entity && !entity.isEmpty()) {
-			entities.put(entity.getId(), entity);
+			String key = entity.getId();
+			Entity old = entities.get(key);
+			if (null != old) {
+				MutableEntity merged = new MutableEntity(old);
+				merged.merge(entity);
+				entity = merged;
+			}
+			entities.put(key, entity);
 		}
 	}
 
