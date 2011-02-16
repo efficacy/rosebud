@@ -8,5 +8,5 @@ public interface Store {
 	void clear();
 
 	Entity get(String id);
-	Collection<String> match(Attribute attribute);
+	Collection<String> match(Attribute pattern);
 }

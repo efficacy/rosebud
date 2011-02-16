@@ -4,5 +4,4 @@ public interface Entity extends Iterable<Attribute> {
 	String getId();
 	boolean isEmpty();
 	String getAttributeValue(String name);
-	
 }

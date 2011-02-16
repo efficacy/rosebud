@@ -9,5 +9,4 @@ public class MemoryStoreTest extends StoreTestCase {
 	protected Store create() {
 		return new MemoryStore();
 	}
-
 }

@@ -139,7 +139,6 @@ public class MySQLStore implements ConfigurableStore {
 		addColumnMatch(query, "rel", attribute.rel, args);
 		addColumnMatch(query, "seq", attribute.seq, args);
 		addColumnMatch(query, "dest", attribute.to, args);
-System.err.println("MySQLStore about to execute [" + query + "]");
 		return (Collection<String>) db.query(query.toString(), new CollectingResultRowListener<String>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
 				add(results.getString("src"));
