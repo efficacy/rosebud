@@ -1,9 +1,9 @@
 package manual;
 
+import org.stringtree.db.DatabaseUtils;
 import org.stringtree.finder.StringFinder;
 import org.stringtree.rosebud.ConfigurableStore;
 import org.stringtree.rosebud.db.MySQLStore;
-import org.stringtree.rosebud.util.DatabaseUtils;
 
 public class RunDDL {
 	public static void main(String[] args) throws Exception {
