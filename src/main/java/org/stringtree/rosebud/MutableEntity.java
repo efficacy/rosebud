@@ -29,12 +29,15 @@ public class MutableEntity implements Entity {
 		merge(other);
 	}
 
-	public void merge(Entity other) {
+	@Override
+	public Entity merge(Entity other) {
 		for (Attribute attribute : other) {
 			setAttribute(attribute);
 		}
+		return this;
 	}
 
+	@Override
 	public void setAttributes(Collection<Attribute> collection) {
 		clear();
 		for (Attribute attribute : collection) {
@@ -42,11 +45,13 @@ public class MutableEntity implements Entity {
 		}
 	}
 
+	@Override
 	public void clear() {
 		singleIndex.clear();
 		attributes.clear();
 	}
 
+	@Override
 	public void setAttribute(Attribute attribute) {
 		attributes.add(attribute);
 		singleIndex.put(attribute.rel, attribute.to);

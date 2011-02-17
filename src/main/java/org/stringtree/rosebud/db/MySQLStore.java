@@ -95,6 +95,7 @@ public class MySQLStore implements ConfigurableStore {
 	}
 
 	private static final String PUT_DML = "replace into attribute (src,rel,seq,dest,modified) values ";
+	private static final String PLACEHOLDERS = "(?,?,?,?,?)";
 	int maxLength = 1024;
 	
 	@Override
@@ -105,7 +106,7 @@ public class MySQLStore implements ConfigurableStore {
 			int count = 0;
 			for (final Attribute attribute : entity) {
 				if (count > 0) buf.append(",");
-				buf.append("(?,?,?,?,?)");
+				buf.append(PLACEHOLDERS);
 				values.add(attribute.from);
 				values.add(attribute.rel);
 				values.add(attribute.seq);
@@ -128,6 +129,11 @@ public class MySQLStore implements ConfigurableStore {
 		db.update(buf.toString(), values);
 		buf.setLength(PUT_DML.length());
 		values.clear();
+	}
+
+	@Override
+	public void put(Attribute attribute) {
+		db.update(PUT_DML + PLACEHOLDERS, attribute.from, attribute.rel, attribute.seq, attribute.to, attribute.stamp);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -54,6 +54,35 @@ public abstract class StoreTestCase extends TestCase {
 		assertEquals("Margaret", out.getAttributeValue("wife"));
 	}
 	
+	public void testPutSoleAttribute() {
+		Attribute at = new Attribute("S1", "stuff", "there");
+		assertNull(store.get("S1"));
+		store.put(at);
+		
+		Entity out = store.get("S1");
+		assertNotNull(out);
+		assertEquals("there", out.getAttributeValue("stuff"));
+	}
+	
+	public void testPutAdditionalAttribute() {
+		in = new MutableEntity("S1");
+		in.setAttributeValue("name", "Frank");
+		store.put(in);
+
+		Attribute at = new Attribute("S1", "stuff", "there");
+		Entity out = store.get("S1");
+		assertNotNull(out);
+		assertNull("there", out.getAttributeValue("stuff"));
+		assertEquals("Frank", out.getAttributeValue("name"));
+
+		store.put(at);
+		
+		out = store.get("S1");
+		assertNotNull(out);
+		assertEquals("there", out.getAttributeValue("stuff"));
+		assertEquals("Frank", out.getAttributeValue("name"));
+	}
+	
 	public void testDelete() {
 		testNonEmptyEntity();
 		store.delete("E1");

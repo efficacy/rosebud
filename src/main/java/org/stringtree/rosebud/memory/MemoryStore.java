@@ -11,7 +11,6 @@ import org.stringtree.rosebud.MutableEntity;
 import org.stringtree.rosebud.Store;
 
 public class MemoryStore implements Store {
-	
 	Map<String, Entity> entities;
 	
 	public MemoryStore() {
@@ -34,12 +33,20 @@ public class MemoryStore implements Store {
 			String key = entity.getId();
 			Entity old = entities.get(key);
 			if (null != old) {
-				MutableEntity merged = new MutableEntity(old);
-				merged.merge(entity);
-				entity = merged;
+				entity = new MutableEntity(old).merge(entity);
 			}
 			entities.put(key, entity);
 		}
+	}
+
+	@Override
+	public void put(Attribute attribute) {
+		Entity entity = get(attribute.from);
+		if (null == entity) {
+			entity = new MutableEntity(attribute.from);
+		}
+		entity.setAttribute(attribute);
+		put(entity);
 	}
 
 	@Override
@@ -73,5 +80,4 @@ public class MemoryStore implements Store {
 		
 		return ret;
 	}
-
 }
