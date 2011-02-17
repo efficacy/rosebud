@@ -61,15 +61,21 @@ public class MemoryStore implements Store {
 		for (Entity entity : entities.values()) {
 			for (Attribute candidate : entity) {
 				if (matchAttribute(candidate, pattern)) {
-					ret.add(candidate.from);
+					ret.add(returnable(candidate, pattern));
 				}
 			}
-			
 		}
 		
 		return ret;
 	}
 	
+	private String returnable(Attribute candidate, Attribute pattern) {
+		if (null == pattern.from) return candidate.from;
+		if (null == pattern.rel) return candidate.rel;
+		if (null == pattern.to) return candidate.to;
+		return candidate.from;
+	}
+
 	private boolean matchAttribute(Attribute candidate, Attribute pattern) {
 		boolean ret = true;
 		

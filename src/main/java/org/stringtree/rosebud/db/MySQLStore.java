@@ -138,19 +138,26 @@ public class MySQLStore implements ConfigurableStore {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Collection<String> match(Attribute attribute) {
+	public Collection<String> match(final Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
 		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute where");
-		addColumnMatch(query, "src", attribute.from, args);
-		addColumnMatch(query, "rel", attribute.rel, args);
-		addColumnMatch(query, "seq", attribute.seq, args);
-		addColumnMatch(query, "dest", attribute.to, args);
+		addColumnMatch(query, "src", pattern.from, args);
+		addColumnMatch(query, "rel", pattern.rel, args);
+		addColumnMatch(query, "seq", pattern.seq, args);
+		addColumnMatch(query, "dest", pattern.to, args);
 		return (Collection<String>) db.query(query.toString(), new CollectingResultRowListener<String>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
-				add(results.getString("src"));
+				add(returnable(results, pattern));
 				return null;
 			}
 		}, args.toArray());
+	}
+	
+	private String returnable(ResultSet results, Attribute pattern) throws SQLException {
+		if (null == pattern.from) return results.getString("src");
+		if (null == pattern.rel) return results.getString("rel");
+		if (null == pattern.to) return results.getString("dest");
+		return results.getString("src");
 	}
 
 	private void addColumnMatch(StringBuilder query, String colname, Object colvalue, List<Object> args) {
