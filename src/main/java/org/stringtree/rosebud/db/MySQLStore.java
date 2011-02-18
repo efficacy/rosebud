@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -100,6 +101,7 @@ public class MySQLStore implements ConfigurableStore {
 	
 	@Override
 	public void put(Entity entity) {
+		db.update("delete from attribute where src=?", entity.getId());
 		if (!entity.isEmpty()) {
 			StringBuffer buf = new StringBuffer(PUT_DML);
 			List<Object> values = new ArrayList<Object>();
@@ -168,5 +170,24 @@ public class MySQLStore implements ConfigurableStore {
 			query.append("=?");
 			args.add(colvalue);
 		}
+	}
+
+	// TODO could be a memory hog for large stores - consdider chunking
+	@SuppressWarnings("unchecked")
+	@Override
+	public Iterator<Attribute> iterator() {
+		Collection<Attribute> ret = (Collection<Attribute>) db.query("select src,rel,seq,dest,modified from attribute", new CollectingResultRowListener<Attribute>() {
+			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
+				add(new Attribute(
+						results.getString("src"),
+						results.getString("rel"),
+						results.getLong("seq"),
+						results.getString("dest"),
+						results.getLong("modified")
+				));
+				return null;
+			}
+		});
+		return ret.iterator();
 	}
 }

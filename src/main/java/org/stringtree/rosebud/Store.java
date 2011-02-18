@@ -2,7 +2,7 @@ package org.stringtree.rosebud;
 
 import java.util.Collection;
 
-public interface Store {
+public interface Store extends Iterable<Attribute>{
 	void put(Attribute attribute);
 	void put(Entity entity);
 	void delete(String id);

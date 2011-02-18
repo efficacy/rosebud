@@ -50,7 +50,7 @@ public abstract class StoreTestCase extends TestCase {
 		
 		Entity out = store.get("E1");
 		assertNotNull(out);
-		assertEquals("Frank", out.getAttributeValue("name"));
+		assertNull(out.getAttributeValue("name"));
 		assertEquals("Margaret", out.getAttributeValue("wife"));
 	}
 	
@@ -92,9 +92,6 @@ public abstract class StoreTestCase extends TestCase {
 	public void testMatchToFindSrc() {
 		in = new MutableEntity("E1");
 		in.setAttributeValue("name", "Frank");
-		store.put(in);
-		
-		in = new MutableEntity("E1");
 		in.setAttributeValue("wife", "Margaret");
 		store.put(in);
 		
@@ -119,9 +116,6 @@ public abstract class StoreTestCase extends TestCase {
 	public void testMatchToFindDest() {
 		in = new MutableEntity("E1");
 		in.setAttributeValue("name", "Frank");
-		store.put(in);
-		
-		in = new MutableEntity("E1");
 		in.setAttributeValue("wife", "Margaret");
 		store.put(in);
 		

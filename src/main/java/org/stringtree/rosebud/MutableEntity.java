@@ -80,4 +80,9 @@ public class MutableEntity implements Entity {
 	public Iterator<Attribute> iterator() {
 		return attributes.iterator();
 	}
+	
+	@Override
+	public String toString() {
+		return "Entity(" + id + ")" + attributes;
+	}
 }
