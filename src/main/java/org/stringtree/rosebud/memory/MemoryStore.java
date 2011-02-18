@@ -92,6 +92,6 @@ public class MemoryStore implements Store {
 
 	@Override
 	public Iterator<Attribute> iterator() {
-		return null;
+		return attributes.iterator();
 	}
 }
