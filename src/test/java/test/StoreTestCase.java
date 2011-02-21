@@ -103,13 +103,13 @@ public abstract class StoreTestCase extends TestCase {
 		in.setAttributeValue("name", "Margaret");
 		store.put(in);
 		
-		Collection<String> out = store.match(new Attribute(null, "name", "Frank"));
+		Collection<String> out = store.find(new Attribute(null, "name", "Frank"));
 		assertTrue(new Checklist<String>("E1").check(out));
 		
-		out = store.match(new Attribute(null, "name", "Margaret"));
+		out = store.find(new Attribute(null, "name", "Margaret"));
 		assertTrue(new Checklist<String>("E2","E3").check(out));
 		
-		out = store.match(new Attribute(null, null, "Margaret"));
+		out = store.find(new Attribute(null, null, "Margaret"));
 		assertTrue(new Checklist<String>("E1","E2","E3").check(out));
 	}
 	
@@ -119,10 +119,32 @@ public abstract class StoreTestCase extends TestCase {
 		in.setAttributeValue("wife", "Margaret");
 		store.put(in);
 		
-		Collection<String> out = store.match(new Attribute("E1", "name", null));
+		Collection<String> out = store.find(new Attribute("E1", "name", null));
 		assertTrue(new Checklist<String>("Frank").check(out));
 		
-		out = store.match(new Attribute("E1", "wife", null));
+		out = store.find(new Attribute("E1", "wife", null));
 		assertTrue(new Checklist<String>("Margaret").check(out));
+	}
+	
+	public void testFindNone() {
+		Collection<Attribute> attributes = store.match(new Attribute(null, null, Attribute.NO_SEQ, null));
+		assertTrue(attributes.isEmpty());
+	}
+	
+	public void testFindOne() {
+		store.put(new Attribute("U1", "name", "Frank"));
+		Collection<Attribute> attributes = store.match(new Attribute(null, null, Attribute.NO_SEQ, null));
+		assertTrue(new Checklist<Attribute>(new Attribute("U1", "name", "Frank")).check(attributes));
+	}
+	
+	public void testFindSome() {
+		store.put(new Attribute("U1", "name", "Frank"));
+		store.put(new Attribute("U2", "name", "Margaret"));
+		store.put(new Attribute("U1", "wife", "Margaret"));
+		Collection<Attribute> attributes = store.match(new Attribute(null, null, Attribute.NO_SEQ, "Margaret"));
+		assertTrue(new Checklist<Attribute>(
+				new Attribute("U2", "name", "Margaret"),
+				new Attribute("U1", "wife", "Margaret")
+			).check(attributes));
 	}
 }

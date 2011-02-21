@@ -60,7 +60,20 @@ public class MemoryStore implements Store {
 	}
 
 	@Override
-	public Collection<String> match(Attribute pattern) {
+	public Collection<Attribute> match(Attribute pattern) {
+		Collection<Attribute> ret = new ArrayList<Attribute>();
+		
+		for (Attribute candidate : attributes) {
+			if (matchAttribute(candidate, pattern)) {
+				ret.add(candidate);
+			}
+		}
+		
+		return ret;
+	}
+
+	@Override
+	public Collection<String> find(Attribute pattern) {
 		Collection<String> ret = new HashSet<String>();
 		
 		for (Attribute candidate : attributes) {

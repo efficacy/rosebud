@@ -140,9 +140,33 @@ public class MySQLStore implements ConfigurableStore {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Collection<String> match(final Attribute pattern) {
+	public Collection<Attribute> match(Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
-		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute where");
+		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
+		addColumnMatch(query, "src", pattern.from, args);
+		addColumnMatch(query, "rel", pattern.rel, args);
+		addColumnMatch(query, "seq", pattern.seq, args);
+		addColumnMatch(query, "dest", pattern.to, args);
+System.err.println("about to call query [" + query + "] with args " + args);
+		return (Collection<Attribute>) db.query(query.toString(), new CollectingResultRowListener<Attribute>() {
+			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
+				add(new Attribute(
+						results.getString("src"),
+						results.getString("rel"),
+						results.getLong("seq"),
+						results.getString("dest"),
+						results.getLong("modified")
+				));
+				return null;
+			}
+		}, args.toArray());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Collection<String> find(final Attribute pattern) {
+		List<Object> args = new ArrayList<Object>();
+		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
 		addColumnMatch(query, "src", pattern.from, args);
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
@@ -163,9 +187,13 @@ public class MySQLStore implements ConfigurableStore {
 	}
 
 	private void addColumnMatch(StringBuilder query, String colname, Object colvalue, List<Object> args) {
-		if (null != colvalue) {
-			if (!args.isEmpty()) query.append(" and"); 
-			query.append(" ");
+System.err.println("add column match colvalue=[" + colvalue + "] of " + (null==colvalue ? null : colvalue.getClass()));
+		if (null != colvalue && !Attribute.NO_SEQ_OBJECT.equals(colvalue)) {
+			if (args.isEmpty()) {
+				query.append(" where "); 
+			} else {
+				query.append(" and "); 
+			}
 			query.append(colname);
 			query.append("=?");
 			args.add(colvalue);

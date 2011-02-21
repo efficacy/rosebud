@@ -9,5 +9,6 @@ public interface Store extends Iterable<Attribute>{
 	void clear();
 
 	Entity get(String id);
-	Collection<String> match(Attribute pattern);
+	Collection<String> find(Attribute pattern);
+	Collection<Attribute> match(Attribute pattern);
 }

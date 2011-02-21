@@ -11,7 +11,7 @@ public class AttributeTest extends TestCase {
 		a = new Attribute("E1", "name", "Frank");
 		assertEquals("E1", a.from);
 		assertEquals("name", a.rel);
-		assertEquals(0L, a.seq);
+		assertEquals(Attribute.NO_SEQ, a.seq);
 		assertEquals("Frank", a.to);
 	}
 }
