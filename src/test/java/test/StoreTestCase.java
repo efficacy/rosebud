@@ -127,13 +127,13 @@ public abstract class StoreTestCase extends TestCase {
 	}
 	
 	public void testFindNone() {
-		Collection<Attribute> attributes = store.match(new Attribute(null, null, Attribute.NO_SEQ, null));
+		Collection<Attribute> attributes = store.match(new Attribute(null, null, null));
 		assertTrue(attributes.isEmpty());
 	}
 	
 	public void testFindOne() {
 		store.put(new Attribute("U1", "name", "Frank"));
-		Collection<Attribute> attributes = store.match(new Attribute(null, null, Attribute.NO_SEQ, null));
+		Collection<Attribute> attributes = store.match(new Attribute(null, null, null));
 		assertTrue(new Checklist<Attribute>(new Attribute("U1", "name", "Frank")).check(attributes));
 	}
 	
@@ -141,10 +141,32 @@ public abstract class StoreTestCase extends TestCase {
 		store.put(new Attribute("U1", "name", "Frank"));
 		store.put(new Attribute("U2", "name", "Margaret"));
 		store.put(new Attribute("U1", "wife", "Margaret"));
-		Collection<Attribute> attributes = store.match(new Attribute(null, null, Attribute.NO_SEQ, "Margaret"));
+		Collection<Attribute> attributes = store.match(new Attribute(null, null, "Margaret"));
 		assertTrue(new Checklist<Attribute>(
 				new Attribute("U2", "name", "Margaret"),
 				new Attribute("U1", "wife", "Margaret")
 			).check(attributes));
+	}
+	
+	public void testExistsEmpty() {
+		assertFalse(store.exists(new Attribute(null, null, "Margaret")));
+	}
+	
+	public void testExistsNoMatch() {
+		store.put(new Attribute("U1", "name", "Frank"));
+		assertFalse(store.exists(new Attribute(null, null, "Margaret")));
+	}
+	
+	public void testExistsSingleMatch() {
+		store.put(new Attribute("U1", "name", "Frank"));
+		store.put(new Attribute("U2", "name", "Margaret"));
+		assertTrue(store.exists(new Attribute(null, null, "Margaret")));
+	}
+	
+	public void testExistsMultipleMatch() {
+		store.put(new Attribute("U1", "name", "Frank"));
+		store.put(new Attribute("U2", "name", "Margaret"));
+		assertTrue(store.exists(new Attribute(null, null, "Margaret")));
+		store.put(new Attribute("U1", "wife", "Margaret"));
 	}
 }

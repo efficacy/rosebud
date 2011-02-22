@@ -78,11 +78,24 @@ public class MemoryStore implements Store {
 		
 		for (Attribute candidate : attributes) {
 			if (matchAttribute(candidate, pattern)) {
-				ret.add(returnable(candidate, pattern));
+				String returnable = returnable(candidate, pattern);
+				ret.add(returnable);
 			}
 		}
 		
 		return ret;
+	}
+
+	@Override
+	public boolean exists(Attribute pattern) {
+		
+		for (Attribute candidate : attributes) {
+			if (matchAttribute(candidate, pattern)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	private String returnable(Attribute candidate, Attribute pattern) {

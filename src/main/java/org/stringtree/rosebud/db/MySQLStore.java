@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 
 import org.stringtree.db.CollectingResultRowListener;
 import org.stringtree.db.DatabaseWrapper;
+import org.stringtree.db.ResultRowListener;
 import org.stringtree.db.StatementPopulator;
 import org.stringtree.finder.StringFinder;
 import org.stringtree.rosebud.Attribute;
@@ -147,7 +148,6 @@ public class MySQLStore implements ConfigurableStore {
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
 		addColumnMatch(query, "dest", pattern.to, args);
-System.err.println("about to call query [" + query + "] with args " + args);
 		return (Collection<Attribute>) db.query(query.toString(), new CollectingResultRowListener<Attribute>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
 				add(new Attribute(
@@ -160,6 +160,23 @@ System.err.println("about to call query [" + query + "] with args " + args);
 				return null;
 			}
 		}, args.toArray());
+	}
+
+	@Override
+	public boolean exists(Attribute pattern) {
+		List<Object> args = new ArrayList<Object>();
+		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
+		addColumnMatch(query, "src", pattern.from, args);
+		addColumnMatch(query, "rel", pattern.rel, args);
+		addColumnMatch(query, "seq", pattern.seq, args);
+		addColumnMatch(query, "dest", pattern.to, args);
+		query.append(" limit 1");
+		Boolean ret = (Boolean) db.query(query.toString(), new ResultRowListener() {
+			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
+				return Boolean.TRUE;
+			}
+		}, args.toArray());
+		return Boolean.TRUE == ret;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -187,7 +204,6 @@ System.err.println("about to call query [" + query + "] with args " + args);
 	}
 
 	private void addColumnMatch(StringBuilder query, String colname, Object colvalue, List<Object> args) {
-System.err.println("add column match colvalue=[" + colvalue + "] of " + (null==colvalue ? null : colvalue.getClass()));
 		if (null != colvalue && !Attribute.NO_SEQ_OBJECT.equals(colvalue)) {
 			if (args.isEmpty()) {
 				query.append(" where "); 
