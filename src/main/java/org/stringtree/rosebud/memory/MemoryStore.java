@@ -73,6 +73,20 @@ public class MemoryStore implements Store {
 	}
 
 	@Override
+	public Attribute matchOne(Attribute pattern) {
+		Attribute ret = null;
+		
+		for (Attribute candidate : attributes) {
+			if (matchAttribute(candidate, pattern)) {
+				ret = candidate;
+				break;
+			}
+		}
+		
+		return ret;
+	}
+
+	@Override
 	public Collection<String> find(Attribute pattern) {
 		Collection<String> ret = new HashSet<String>();
 		
@@ -80,6 +94,20 @@ public class MemoryStore implements Store {
 			if (matchAttribute(candidate, pattern)) {
 				String returnable = returnable(candidate, pattern);
 				ret.add(returnable);
+			}
+		}
+		
+		return ret;
+	}
+
+	@Override
+	public String findOne(Attribute pattern) {
+		String ret = null;
+		
+		for (Attribute candidate : attributes) {
+			if (matchAttribute(candidate, pattern)) {
+				ret = returnable(candidate, pattern);
+				break;
 			}
 		}
 		

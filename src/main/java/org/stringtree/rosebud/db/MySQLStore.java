@@ -163,7 +163,7 @@ public class MySQLStore implements ConfigurableStore {
 	}
 
 	@Override
-	public boolean exists(Attribute pattern) {
+	public Attribute matchOne(Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
 		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
 		addColumnMatch(query, "src", pattern.from, args);
@@ -171,12 +171,18 @@ public class MySQLStore implements ConfigurableStore {
 		addColumnMatch(query, "seq", pattern.seq, args);
 		addColumnMatch(query, "dest", pattern.to, args);
 		query.append(" limit 1");
-		Boolean ret = (Boolean) db.query(query.toString(), new ResultRowListener() {
+		Attribute found = (Attribute) db.query(query.toString(), new ResultRowListener() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
-				return Boolean.TRUE;
+				return new Attribute(
+						results.getString("src"),
+						results.getString("rel"),
+						results.getLong("seq"),
+						results.getString("dest"),
+						results.getLong("modified")
+				);
 			}
 		}, args.toArray());
-		return Boolean.TRUE == ret;
+		return found;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -195,12 +201,30 @@ public class MySQLStore implements ConfigurableStore {
 			}
 		}, args.toArray());
 	}
+
+	@Override
+	public String findOne(Attribute pattern) {
+		return returnable(matchOne(pattern), pattern);
+	}
 	
 	private String returnable(ResultSet results, Attribute pattern) throws SQLException {
 		if (null == pattern.from) return results.getString("src");
 		if (null == pattern.rel) return results.getString("rel");
 		if (null == pattern.to) return results.getString("dest");
 		return results.getString("src");
+	}
+	
+	private String returnable(Attribute result, Attribute pattern) {
+		if (null == result) return null;
+		if (null == pattern.from) return result.from;
+		if (null == pattern.rel) return result.rel;
+		if (null == pattern.to) return result.to;
+		return result.from;
+	}
+
+	@Override
+	public boolean exists(Attribute pattern) {
+		return null != matchOne(pattern);
 	}
 
 	private void addColumnMatch(StringBuilder query, String colname, Object colvalue, List<Object> args) {

@@ -169,4 +169,26 @@ public abstract class StoreTestCase extends TestCase {
 		assertTrue(store.exists(new Attribute(null, null, "Margaret")));
 		store.put(new Attribute("U1", "wife", "Margaret"));
 	}
+	
+	public void testFindOneEmpty() {
+		assertNull(store.findOne(new Attribute(null, null, "Margaret")));
+	}
+	
+	public void testFindOneNoMatch() {
+		store.put(new Attribute("U1", "name", "Frank"));
+		assertNull(store.findOne(new Attribute(null, null, "Margaret")));
+	}
+	
+	public void testFindOneSingleMatch() {
+		store.put(new Attribute("U1", "name", "Frank"));
+		store.put(new Attribute("U2", "name", "Margaret"));
+		assertNotNull(store.findOne(new Attribute(null, null, "Margaret")));
+	}
+	
+	public void testFindOneMultipleMatch() {
+		store.put(new Attribute("U1", "name", "Frank"));
+		store.put(new Attribute("U2", "name", "Margaret"));
+		assertTrue(store.exists(new Attribute(null, null, "Margaret")));
+		assertNotNull(store.findOne(new Attribute(null, null, "Margaret")));
+	}
 }
