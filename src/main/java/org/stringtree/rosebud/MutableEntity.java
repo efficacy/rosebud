@@ -57,8 +57,12 @@ public class MutableEntity implements Entity {
 		singleIndex.put(attribute.rel, attribute.dest);
 	}
 
-	public void setAttributeValue(String name, String value) {
+	public void setAttribute(String name, String value) {
 		setAttribute(new Attribute(id, name, value));
+	}
+
+	public void setAttribute(String name, String value, String data) {
+		setAttribute(new Attribute(id, name, "", value, data));
 	}
 	
 	@Override

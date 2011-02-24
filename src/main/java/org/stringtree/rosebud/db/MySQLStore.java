@@ -153,6 +153,7 @@ public class MySQLStore implements ConfigurableStore {
 		addColumnMatch(query, "seq", pattern.seq, args);
 		addColumnMatch(query, "dest", pattern.dest, args);
 		String sql = query.toString();
+
 		return (Collection<Attribute>) db.query(sql, new CollectingResultRowListener<Attribute>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
 				add(new Attribute(
@@ -250,22 +251,9 @@ public class MySQLStore implements ConfigurableStore {
 	}
 
 	// TODO could be a memory hog for large stores - consdider chunking
-	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<Attribute> iterator() {
-		Collection<Attribute> ret = (Collection<Attribute>) db.query("select src,rel,seq,dest,data,modified from attribute", new CollectingResultRowListener<Attribute>() {
-			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
-				add(new Attribute(
-						results.getString("src"),
-						results.getString("rel"),
-						results.getString("seq"),
-						results.getString("dest"),
-						results.getString("data"),
-						results.getLong("modified")
-				));
-				return null;
-			}
-		});
+		Collection<Attribute> ret = match(new Attribute(null, null, null, null));
 		return ret.iterator();
 	}
 }

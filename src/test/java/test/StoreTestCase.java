@@ -31,7 +31,7 @@ public abstract class StoreTestCase extends TestCase {
 	
 	public void testNonEmptyEntity() {
 		in = new MutableEntity("E1");
-		in.setAttributeValue("name", "Frank");
+		in.setAttribute("name", "Frank");
 		store.put(in);
 		
 		Entity out = store.get("E1");
@@ -41,11 +41,11 @@ public abstract class StoreTestCase extends TestCase {
 	
 	public void testSeparatePutToSameEntity() {
 		in = new MutableEntity("E1");
-		in.setAttributeValue("name", "Frank");
+		in.setAttribute("name", "Frank");
 		store.put(in);
 		
 		in = new MutableEntity("E1");
-		in.setAttributeValue("wife", "Margaret");
+		in.setAttribute("wife", "Margaret");
 		store.put(in);
 		
 		Entity out = store.get("E1");
@@ -66,7 +66,7 @@ public abstract class StoreTestCase extends TestCase {
 	
 	public void testPutAdditionalAttribute() {
 		in = new MutableEntity("S1");
-		in.setAttributeValue("name", "Frank");
+		in.setAttribute("name", "Frank");
 		store.put(in);
 
 		Attribute at = new Attribute("S1", "stuff", "there");
@@ -91,16 +91,16 @@ public abstract class StoreTestCase extends TestCase {
 	
 	public void testMatchToFindSrc() {
 		in = new MutableEntity("E1");
-		in.setAttributeValue("name", "Frank");
-		in.setAttributeValue("wife", "Margaret");
+		in.setAttribute("name", "Frank");
+		in.setAttribute("wife", "Margaret");
 		store.put(in);
 		
 		in = new MutableEntity("E2");
-		in.setAttributeValue("name", "Margaret");
+		in.setAttribute("name", "Margaret");
 		store.put(in);
 		
 		in = new MutableEntity("E3");
-		in.setAttributeValue("name", "Margaret");
+		in.setAttribute("name", "Margaret");
 		store.put(in);
 		
 		Collection<String> out = store.find(new Attribute(null, "name", "Frank"));
@@ -115,8 +115,8 @@ public abstract class StoreTestCase extends TestCase {
 	
 	public void testMatchToFindDest() {
 		in = new MutableEntity("E1");
-		in.setAttributeValue("name", "Frank");
-		in.setAttributeValue("wife", "Margaret");
+		in.setAttribute("name", "Frank");
+		in.setAttribute("wife", "Margaret");
 		store.put(in);
 		
 		Collection<String> out = store.find(new Attribute("E1", "name", null));

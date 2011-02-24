@@ -9,7 +9,8 @@ public interface Entity extends Iterable<Attribute> {
 	
 	void clear();
 	void setAttribute(Attribute attribute);
-	void setAttributeValue(String name, String value);
+	void setAttribute(String name, String value);
+	void setAttribute(String name, String value, String data);
 	void setAttributes(Collection<Attribute> collection);
 	Entity merge(Entity other);
 }
