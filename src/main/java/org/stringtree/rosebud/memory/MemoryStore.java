@@ -28,7 +28,7 @@ public class MemoryStore implements Store {
 	private Collection<Attribute> findAll(String id) {
 		Collection<Attribute> found = new ArrayList<Attribute>();
 		for (Attribute attribute : attributes) {
-			if (id.equals(attribute.from)) {
+			if (id.equals(attribute.src)) {
 				found.add(attribute);
 			}
 		}
@@ -127,19 +127,19 @@ public class MemoryStore implements Store {
 	}
 	
 	private String returnable(Attribute candidate, Attribute pattern) {
-		if (null == pattern.from) return candidate.from;
+		if (null == pattern.src) return candidate.src;
 		if (null == pattern.rel) return candidate.rel;
-		if (null == pattern.to) return candidate.to;
-		return candidate.from;
+		if (null == pattern.dest) return candidate.dest;
+		return candidate.src;
 	}
 
 	private boolean matchAttribute(Attribute candidate, Attribute pattern) {
 		boolean ret = true;
 		
-		if (null != pattern.from) ret &= pattern.from.equals(candidate.from);
+		if (null != pattern.src) ret &= pattern.src.equals(candidate.src);
 		if (null != pattern.rel) ret &= pattern.rel.equals(candidate.rel);
 		if (Attribute.NO_SEQ != pattern.seq) ret &= (pattern.seq == candidate.seq);
-		if (null != pattern.to) ret &= pattern.to.equals(candidate.to);
+		if (null != pattern.dest) ret &= pattern.dest.equals(candidate.dest);
 		
 		return ret;
 	}

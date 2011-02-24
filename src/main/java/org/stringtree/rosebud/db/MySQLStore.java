@@ -110,10 +110,10 @@ public class MySQLStore implements ConfigurableStore {
 			for (final Attribute attribute : entity) {
 				if (count > 0) buf.append(",");
 				buf.append(PLACEHOLDERS);
-				values.add(attribute.from);
+				values.add(attribute.src);
 				values.add(attribute.rel);
 				values.add(attribute.seq);
-				values.add(attribute.to);
+				values.add(attribute.dest);
 				values.add(attribute.stamp);
 
 				if (buf.length() > maxLength) {
@@ -136,7 +136,7 @@ public class MySQLStore implements ConfigurableStore {
 
 	@Override
 	public void put(Attribute attribute) {
-		db.update(PUT_DML + PLACEHOLDERS, attribute.from, attribute.rel, attribute.seq, attribute.to, attribute.stamp);
+		db.update(PUT_DML + PLACEHOLDERS, attribute.src, attribute.rel, attribute.seq, attribute.dest, attribute.stamp);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -144,10 +144,10 @@ public class MySQLStore implements ConfigurableStore {
 	public Collection<Attribute> match(Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
 		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
-		addColumnMatch(query, "src", pattern.from, args);
+		addColumnMatch(query, "src", pattern.src, args);
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
-		addColumnMatch(query, "dest", pattern.to, args);
+		addColumnMatch(query, "dest", pattern.dest, args);
 		return (Collection<Attribute>) db.query(query.toString(), new CollectingResultRowListener<Attribute>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
 				add(new Attribute(
@@ -166,10 +166,10 @@ public class MySQLStore implements ConfigurableStore {
 	public Attribute matchOne(Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
 		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
-		addColumnMatch(query, "src", pattern.from, args);
+		addColumnMatch(query, "src", pattern.src, args);
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
-		addColumnMatch(query, "dest", pattern.to, args);
+		addColumnMatch(query, "dest", pattern.dest, args);
 		query.append(" limit 1");
 		Attribute found = (Attribute) db.query(query.toString(), new ResultRowListener() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
@@ -190,10 +190,10 @@ public class MySQLStore implements ConfigurableStore {
 	public Collection<String> find(final Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
 		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
-		addColumnMatch(query, "src", pattern.from, args);
+		addColumnMatch(query, "src", pattern.src, args);
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
-		addColumnMatch(query, "dest", pattern.to, args);
+		addColumnMatch(query, "dest", pattern.dest, args);
 		return (Collection<String>) db.query(query.toString(), new CollectingResultRowListener<String>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
 				add(returnable(results, pattern));
@@ -208,18 +208,18 @@ public class MySQLStore implements ConfigurableStore {
 	}
 	
 	private String returnable(ResultSet results, Attribute pattern) throws SQLException {
-		if (null == pattern.from) return results.getString("src");
+		if (null == pattern.src) return results.getString("src");
 		if (null == pattern.rel) return results.getString("rel");
-		if (null == pattern.to) return results.getString("dest");
+		if (null == pattern.dest) return results.getString("dest");
 		return results.getString("src");
 	}
 	
 	private String returnable(Attribute result, Attribute pattern) {
 		if (null == result) return null;
-		if (null == pattern.from) return result.from;
+		if (null == pattern.src) return result.src;
 		if (null == pattern.rel) return result.rel;
-		if (null == pattern.to) return result.to;
-		return result.from;
+		if (null == pattern.dest) return result.dest;
+		return result.src;
 	}
 
 	@Override

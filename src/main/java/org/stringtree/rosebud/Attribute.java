@@ -6,18 +6,18 @@ public class Attribute implements Comparable<Attribute> {
 	public static final long NO_SEQ = 0;
 	public static final Long NO_SEQ_OBJECT = NO_SEQ;
 	
-	public final String from;
+	public final String src;
 	public final String rel;
 	public final long seq;
-	public final String to;
+	public final String dest;
 	public final long stamp;
 	public final String text;
 	
 	public Attribute(String from, String rel, long seq, String to, long modified) {
-		this.from = from;
+		this.src = from;
 		this.rel = rel;
 		this.seq = seq;
-		this.to = to;
+		this.dest = to;
 		this.stamp = modified;
 		this.text = "Link[from=" + from + ",rel=" + rel + ",seq=" + seq + ",to=" + to + ",expiry=" + modified + "]";
 	}
@@ -38,7 +38,7 @@ public class Attribute implements Comparable<Attribute> {
 		if (this == obj) return true;
 		if (!(obj instanceof Attribute)) return false;
 		Attribute other = (Attribute)obj;
-		return seq == other.seq && Utils.same(from, other.from) && 
+		return seq == other.seq && Utils.same(src, other.src) && 
 			Utils.same(rel, other.rel);
 	}
 	
@@ -46,14 +46,14 @@ public class Attribute implements Comparable<Attribute> {
 		if (this == obj) return true;
 		if (!(obj instanceof Attribute)) return false;
 		Attribute other = (Attribute)obj;
-		return seq == other.seq && stamp == other.stamp && Utils.same(from, other.from) && 
-			Utils.same(rel, other.rel) && Utils.same(to, other.to);
+		return seq == other.seq && stamp == other.stamp && Utils.same(src, other.src) && 
+			Utils.same(rel, other.rel) && Utils.same(dest, other.dest);
 	}
 
 	public int compareTo(Attribute other) {
 		int ret = (int)(this.seq - other.seq) * 10;
 		if (0 == ret) ret = this.rel.compareTo(other.rel);
-		if (0 == ret) ret = this.from.compareTo(other.from);
+		if (0 == ret) ret = this.src.compareTo(other.src);
 		return ret;
 	}
 	
