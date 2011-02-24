@@ -153,10 +153,8 @@ public class MySQLStore implements ConfigurableStore {
 		addColumnMatch(query, "seq", pattern.seq, args);
 		addColumnMatch(query, "dest", pattern.dest, args);
 		String sql = query.toString();
-System.err.println("MySQLStore.match sql=" + sql + " args=" + args);
 		return (Collection<Attribute>) db.query(sql, new CollectingResultRowListener<Attribute>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
-System.err.println("MySQLStore.match found row " + results);
 				add(new Attribute(
 						results.getString("src"),
 						results.getString("rel"),
