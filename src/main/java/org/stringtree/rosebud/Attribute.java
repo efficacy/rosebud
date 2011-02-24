@@ -3,7 +3,7 @@ package org.stringtree.rosebud;
 import org.stringtree.util.Utils;
 
 public class Attribute implements Comparable<Attribute> {
-	public static final long NO_SEQ = Long.MIN_VALUE;
+	public static final long NO_SEQ = 0;
 	public static final Long NO_SEQ_OBJECT = NO_SEQ;
 	
 	public final String from;
