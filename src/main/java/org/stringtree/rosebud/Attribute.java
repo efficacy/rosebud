@@ -3,18 +3,17 @@ package org.stringtree.rosebud;
 import org.stringtree.util.Utils;
 
 public class Attribute implements Comparable<Attribute> {
-	public static final long NO_SEQ = 0;
-	public static final Long NO_SEQ_OBJECT = NO_SEQ;
+	public static final String NO_SEQ = "";
 	
 	public final String src;
 	public final String rel;
-	public final long seq;
+	public final String seq;
 	public final String dest;
 	public final String data;
 	public final long stamp;
 	public final String text;
 	
-	public Attribute(String src, String rel, long seq, String dest, String data, long modified) {
+	public Attribute(String src, String rel, String seq, String dest, String data, long modified) {
 		this.src = src;
 		this.rel = rel;
 		this.seq = seq;
@@ -25,7 +24,7 @@ public class Attribute implements Comparable<Attribute> {
 		this.text = "Attribute[src=" + src + ",rel=" + rel + ",seq=" + seq + ",dest=" + dest + ",data=" + data + ",expiry=" + modified + "]";
 	}
 
-	public Attribute(String src, String rel, long seq, String dest, String data) {
+	public Attribute(String src, String rel, String seq, String dest, String data) {
 		this(src, rel, seq, dest, data, System.currentTimeMillis());
 	}
 
@@ -58,7 +57,7 @@ public class Attribute implements Comparable<Attribute> {
 	}
 
 	public int compareTo(Attribute other) {
-		int ret = (int)(this.seq - other.seq) * 10;
+		int ret = this.seq.compareTo(other.seq);
 		if (0 == ret) ret = this.rel.compareTo(other.rel);
 		if (0 == ret) ret = this.src.compareTo(other.src);
 		return ret;

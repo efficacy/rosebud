@@ -20,6 +20,7 @@ import org.stringtree.rosebud.Attribute;
 import org.stringtree.rosebud.ConfigurableStore;
 import org.stringtree.rosebud.Entity;
 import org.stringtree.rosebud.MutableEntity;
+import org.stringtree.util.Utils;
 
 public class MySQLStore implements ConfigurableStore {
 	DatabaseWrapper db;
@@ -29,7 +30,7 @@ public class MySQLStore implements ConfigurableStore {
 		"create table attribute (" +
 		"  src varchar(255)," +
 		"  rel varchar(255)," +
-		"  seq bigint," +
+		"  seq varchar(255)," +
 		"  dest varchar(255)," +
 		"  data text," +
 		"  modified bigint," +
@@ -87,7 +88,7 @@ public class MySQLStore implements ConfigurableStore {
 				add(new Attribute(
 						results.getString("src"),
 						results.getString("rel"),
-						results.getLong("seq"),
+						results.getString("seq"),
 						results.getString("dest"),
 						results.getString("data"),
 						results.getLong("modified")
@@ -151,12 +152,15 @@ public class MySQLStore implements ConfigurableStore {
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
 		addColumnMatch(query, "dest", pattern.dest, args);
-		return (Collection<Attribute>) db.query(query.toString(), new CollectingResultRowListener<Attribute>() {
+		String sql = query.toString();
+System.err.println("MySQLStore.match sql=" + sql + " args=" + args);
+		return (Collection<Attribute>) db.query(sql, new CollectingResultRowListener<Attribute>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
+System.err.println("MySQLStore.match found row " + results);
 				add(new Attribute(
 						results.getString("src"),
 						results.getString("rel"),
-						results.getLong("seq"),
+						results.getString("seq"),
 						results.getString("dest"),
 						results.getString("data"),
 						results.getLong("modified")
@@ -180,7 +184,7 @@ public class MySQLStore implements ConfigurableStore {
 				return new Attribute(
 						results.getString("src"),
 						results.getString("rel"),
-						results.getLong("seq"),
+						results.getString("seq"),
 						results.getString("dest"),
 						results.getString("data"),
 						results.getLong("modified")
@@ -216,6 +220,7 @@ public class MySQLStore implements ConfigurableStore {
 		if (null == pattern.src) return results.getString("src");
 		if (null == pattern.rel) return results.getString("rel");
 		if (null == pattern.dest) return results.getString("dest");
+		if (null == pattern.data) return results.getString("data");
 		return results.getString("src");
 	}
 	
@@ -224,6 +229,7 @@ public class MySQLStore implements ConfigurableStore {
 		if (null == pattern.src) return result.src;
 		if (null == pattern.rel) return result.rel;
 		if (null == pattern.dest) return result.dest;
+		if (null == pattern.data) return result.data;
 		return result.src;
 	}
 
@@ -233,7 +239,7 @@ public class MySQLStore implements ConfigurableStore {
 	}
 
 	private void addColumnMatch(StringBuilder query, String colname, Object colvalue, List<Object> args) {
-		if (null != colvalue && !Attribute.NO_SEQ_OBJECT.equals(colvalue)) {
+		if (null != colvalue && !Utils.same(Attribute.NO_SEQ, colvalue)) {
 			if (args.isEmpty()) {
 				query.append(" where "); 
 			} else {
@@ -254,7 +260,7 @@ public class MySQLStore implements ConfigurableStore {
 				add(new Attribute(
 						results.getString("src"),
 						results.getString("rel"),
-						results.getLong("seq"),
+						results.getString("seq"),
 						results.getString("dest"),
 						results.getString("data"),
 						results.getLong("modified")
