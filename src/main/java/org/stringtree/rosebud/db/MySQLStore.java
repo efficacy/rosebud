@@ -27,10 +27,11 @@ public class MySQLStore implements ConfigurableStore {
 	static final String CREATE =
 		"drop table if exists attribute;" +
 		"create table attribute (" +
-		"  src varchar(128)," +
-		"  rel varchar(128)," +
+		"  src varchar(255)," +
+		"  rel varchar(255)," +
 		"  seq bigint," +
-		"  dest text," +
+		"  dest varchar(255)," +
+		"  data text," +
 		"  modified bigint," +
 		"  primary key (src,rel,seq)" +
 		");";
@@ -75,7 +76,7 @@ public class MySQLStore implements ConfigurableStore {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Entity get(final String id) {
-		Collection<Attribute> attributes = (Collection<Attribute>) db.query("select src,rel,seq,dest,modified from attribute where src=?", new StatementPopulator() {
+		Collection<Attribute> attributes = (Collection<Attribute>) db.query("select src,rel,seq,dest,data,modified from attribute where src=?", new StatementPopulator() {
 			@Override
 			public void populate(PreparedStatement ps) throws SQLException {
 				ps.setString(1, id);
@@ -88,6 +89,7 @@ public class MySQLStore implements ConfigurableStore {
 						results.getString("rel"),
 						results.getLong("seq"),
 						results.getString("dest"),
+						results.getString("data"),
 						results.getLong("modified")
 				));
 				return null;
@@ -96,8 +98,8 @@ public class MySQLStore implements ConfigurableStore {
 		return attributes.isEmpty() ? null : new MutableEntity(id, attributes);
 	}
 
-	private static final String PUT_DML = "replace into attribute (src,rel,seq,dest,modified) values ";
-	private static final String PLACEHOLDERS = "(?,?,?,?,?)";
+	private static final String PUT_DML = "replace into attribute (src,rel,seq,dest,data,modified) values ";
+	private static final String PLACEHOLDERS = "(?,?,?,?,?,?)";
 	int maxLength = 1024;
 	
 	@Override
@@ -114,6 +116,7 @@ public class MySQLStore implements ConfigurableStore {
 				values.add(attribute.rel);
 				values.add(attribute.seq);
 				values.add(attribute.dest);
+				values.add(attribute.data);
 				values.add(attribute.stamp);
 
 				if (buf.length() > maxLength) {
@@ -136,14 +139,14 @@ public class MySQLStore implements ConfigurableStore {
 
 	@Override
 	public void put(Attribute attribute) {
-		db.update(PUT_DML + PLACEHOLDERS, attribute.src, attribute.rel, attribute.seq, attribute.dest, attribute.stamp);
+		db.update(PUT_DML + PLACEHOLDERS, attribute.src, attribute.rel, attribute.seq, attribute.dest, attribute.data, attribute.stamp);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Attribute> match(Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
-		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
+		StringBuilder query = new StringBuilder("select src,rel,seq,dest,data,modified from attribute");
 		addColumnMatch(query, "src", pattern.src, args);
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
@@ -155,6 +158,7 @@ public class MySQLStore implements ConfigurableStore {
 						results.getString("rel"),
 						results.getLong("seq"),
 						results.getString("dest"),
+						results.getString("data"),
 						results.getLong("modified")
 				));
 				return null;
@@ -165,7 +169,7 @@ public class MySQLStore implements ConfigurableStore {
 	@Override
 	public Attribute matchOne(Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
-		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
+		StringBuilder query = new StringBuilder("select src,rel,seq,dest,data,modified from attribute");
 		addColumnMatch(query, "src", pattern.src, args);
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
@@ -178,6 +182,7 @@ public class MySQLStore implements ConfigurableStore {
 						results.getString("rel"),
 						results.getLong("seq"),
 						results.getString("dest"),
+						results.getString("data"),
 						results.getLong("modified")
 				);
 			}
@@ -189,7 +194,7 @@ public class MySQLStore implements ConfigurableStore {
 	@Override
 	public Collection<String> find(final Attribute pattern) {
 		List<Object> args = new ArrayList<Object>();
-		StringBuilder query = new StringBuilder("select src,rel,seq,dest,modified from attribute");
+		StringBuilder query = new StringBuilder("select src,rel,seq,dest,data,modified from attribute");
 		addColumnMatch(query, "src", pattern.src, args);
 		addColumnMatch(query, "rel", pattern.rel, args);
 		addColumnMatch(query, "seq", pattern.seq, args);
@@ -244,13 +249,14 @@ public class MySQLStore implements ConfigurableStore {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<Attribute> iterator() {
-		Collection<Attribute> ret = (Collection<Attribute>) db.query("select src,rel,seq,dest,modified from attribute", new CollectingResultRowListener<Attribute>() {
+		Collection<Attribute> ret = (Collection<Attribute>) db.query("select src,rel,seq,dest,data,modified from attribute", new CollectingResultRowListener<Attribute>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
 				add(new Attribute(
 						results.getString("src"),
 						results.getString("rel"),
 						results.getLong("seq"),
 						results.getString("dest"),
+						results.getString("data"),
 						results.getLong("modified")
 				));
 				return null;
