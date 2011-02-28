@@ -66,12 +66,7 @@ public class MySQLStore implements ConfigurableStore {
 
 	@Override
 	public void delete(final String id) {
-		db.update("delete from attribute where src=?", new StatementPopulator() {
-			@Override
-			public void populate(PreparedStatement ps) throws SQLException {
-				ps.setString(1, id);
-			}
-		});
+		db.update("delete from attribute where src=?", id);
 	}
 
 	@SuppressWarnings("unchecked")
