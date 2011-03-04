@@ -59,6 +59,24 @@ public class MutableEntity implements Entity {
 		singleIndex.put(attribute.rel, attribute.dest);
 	}
 
+	@Override
+	public void clearAttribute(Attribute attribute) {
+		attributes.remove(attribute);
+		if (null != attribute.rel) {
+			singleIndex.remove(attribute.rel);
+			rebuildSingleIndex(attribute.rel);
+		}
+	}
+
+	private void rebuildSingleIndex(String rel) {
+		for (Attribute attribute : attributes) {
+			if (rel.equals(attribute.rel)) {
+				singleIndex.put(attribute.rel, attribute.dest);
+				break;
+			}
+		}
+	}
+
 	public void setAttribute(String name, String value) {
 		setAttribute(Attribute.bySrcRelDest(id, name, value));
 	}
