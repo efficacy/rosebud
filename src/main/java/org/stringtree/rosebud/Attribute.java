@@ -47,6 +47,10 @@ public class Attribute implements Comparable<Attribute> {
 		return new Attribute(src, null, null, dest, null);
 	}
 	
+	public static Attribute byRelSeq(String rel, String seq) {
+		return new Attribute(null, rel, seq, null, null);
+	}
+	
 	public static Attribute byRelDest(String rel, String dest) {
 		return new Attribute(null, rel, null, dest, null);
 	}
