@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.stringtree.util.testing.Checklist;
+
 public class MutableEntity implements Entity {
 	private final String id;
 	
@@ -95,14 +97,22 @@ public class MutableEntity implements Entity {
 	public Iterator<Attribute> iterator() {
 		return attributes.iterator();
 	}
+
+	@Override
+	public int size() {
+		return attributes.size();
+	}
 	
 	@Override
 	public String toString() {
 		return "Entity(" + id + ")" + attributes;
 	}
+	
+	public boolean equals(Object object) {
+		if (this == object) return true;
+		if (!(object instanceof Entity)) return false;
+		Entity other = (Entity) object;
 
-	@Override
-	public int size() {
-		return attributes.size();
+		return new Checklist<Attribute>(attributes).check(other.iterator());
 	}
 }
