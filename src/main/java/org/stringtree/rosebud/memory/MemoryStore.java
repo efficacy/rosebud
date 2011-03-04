@@ -6,11 +6,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.stringtree.rosebud.Attribute;
+import org.stringtree.rosebud.CommonStore;
 import org.stringtree.rosebud.Entity;
 import org.stringtree.rosebud.MutableEntity;
 import org.stringtree.rosebud.Store;
 
-public class MemoryStore implements Store {
+public class MemoryStore extends CommonStore implements Store {
 	Collection<Attribute> attributes;
 	
 	public MemoryStore() {
@@ -42,8 +43,7 @@ public class MemoryStore implements Store {
 	}
 
 	@Override
-	public void put(Entity entity) {
-		delete(entity.getId());
+	public void add(Entity entity) {
 		for (Attribute attribute : entity) {
 			attributes.add(attribute);
 		}
@@ -116,7 +116,6 @@ public class MemoryStore implements Store {
 
 	@Override
 	public boolean exists(Attribute pattern) {
-		
 		for (Attribute candidate : attributes) {
 			if (matchAttribute(candidate, pattern)) {
 				return true;
@@ -130,6 +129,7 @@ public class MemoryStore implements Store {
 		if (null == pattern.src) return candidate.src;
 		if (null == pattern.rel) return candidate.rel;
 		if (null == pattern.dest) return candidate.dest;
+		if (null == pattern.seq) return candidate.seq;
 		return candidate.src;
 	}
 
@@ -138,7 +138,7 @@ public class MemoryStore implements Store {
 		
 		if (null != pattern.src) ret &= pattern.src.equals(candidate.src);
 		if (null != pattern.rel) ret &= pattern.rel.equals(candidate.rel);
-		if (Attribute.NO_SEQ != pattern.seq) ret &= (pattern.seq == candidate.seq);
+		if (null != pattern.seq) ret &= pattern.seq.equals(candidate.seq);
 		if (null != pattern.dest) ret &= pattern.dest.equals(candidate.dest);
 		
 		return ret;

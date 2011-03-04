@@ -58,7 +58,7 @@ public class MutableEntity implements Entity {
 	}
 
 	public void setAttribute(String name, String value) {
-		setAttribute(new Attribute(id, name, value));
+		setAttribute(Attribute.bySrcRelDest(id, name, value));
 	}
 
 	public void setAttribute(String name, String value, String data) {
@@ -81,6 +81,17 @@ public class MutableEntity implements Entity {
 	}
 
 	@Override
+	public Map<String, String> getAttributeValues(String name) {
+		Map<String, String> ret = new HashMap<String, String>();
+		for (Attribute attribute : attributes) {
+			if (name.equals(attribute.rel)) {
+				ret.put(attribute.seq, attribute.dest);
+			}
+		}
+		return ret;
+	}
+
+	@Override
 	public Iterator<Attribute> iterator() {
 		return attributes.iterator();
 	}
@@ -88,5 +99,10 @@ public class MutableEntity implements Entity {
 	@Override
 	public String toString() {
 		return "Entity(" + id + ")" + attributes;
+	}
+
+	@Override
+	public int size() {
+		return attributes.size();
 	}
 }

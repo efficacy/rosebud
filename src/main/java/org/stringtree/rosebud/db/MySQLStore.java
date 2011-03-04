@@ -17,12 +17,15 @@ import org.stringtree.db.ResultRowListener;
 import org.stringtree.db.StatementPopulator;
 import org.stringtree.finder.StringFinder;
 import org.stringtree.rosebud.Attribute;
+import org.stringtree.rosebud.CommonStore;
 import org.stringtree.rosebud.ConfigurableStore;
 import org.stringtree.rosebud.Entity;
 import org.stringtree.rosebud.MutableEntity;
-import org.stringtree.util.Utils;
+import org.stringtree.util.StringUtils;
 
-public class MySQLStore implements ConfigurableStore {
+public class MySQLStore extends CommonStore implements ConfigurableStore {
+	private static final String NULL_KEYFIELD = "NULL";
+
 	DatabaseWrapper db;
 	
 	static final String CREATE =
@@ -97,10 +100,9 @@ public class MySQLStore implements ConfigurableStore {
 	private static final String PUT_DML = "replace into attribute (src,rel,seq,dest,data,modified) values ";
 	private static final String PLACEHOLDERS = "(?,?,?,?,?,?)";
 	int maxLength = 1024;
-	
+
 	@Override
-	public void put(Entity entity) {
-		db.update("delete from attribute where src=?", entity.getId());
+	public void add(Entity entity) {
 		if (!entity.isEmpty()) {
 			StringBuffer buf = new StringBuffer(PUT_DML);
 			List<Object> values = new ArrayList<Object>();
@@ -108,9 +110,9 @@ public class MySQLStore implements ConfigurableStore {
 			for (final Attribute attribute : entity) {
 				if (count > 0) buf.append(",");
 				buf.append(PLACEHOLDERS);
-				values.add(attribute.src);
-				values.add(attribute.rel);
-				values.add(attribute.seq);
+				values.add(encodeKeyField(attribute.src));
+				values.add(encodeKeyField(attribute.rel));
+				values.add(encodeKeyField(attribute.seq));
 				values.add(attribute.dest);
 				values.add(attribute.data);
 				values.add(attribute.stamp);
@@ -127,6 +129,14 @@ public class MySQLStore implements ConfigurableStore {
 		}
 	}
 
+	private String encodeKeyField(String field) {
+		return StringUtils.stringValue(field, NULL_KEYFIELD);
+	}
+
+	private String decodeKeyField(String field) {
+		return NULL_KEYFIELD.equals(field) ? null : field;
+	}
+
 	private void putChunk(StringBuffer buf, List<Object> values) {
 		db.update(buf.toString(), values);
 		buf.setLength(PUT_DML.length());
@@ -135,7 +145,9 @@ public class MySQLStore implements ConfigurableStore {
 
 	@Override
 	public void put(Attribute attribute) {
-		db.update(PUT_DML + PLACEHOLDERS, attribute.src, attribute.rel, attribute.seq, attribute.dest, attribute.data, attribute.stamp);
+		db.update(PUT_DML + PLACEHOLDERS, 
+				encodeKeyField(attribute.src), encodeKeyField(attribute.rel), encodeKeyField(attribute.seq), 
+				attribute.dest, attribute.data, attribute.stamp);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -152,9 +164,9 @@ public class MySQLStore implements ConfigurableStore {
 		return (Collection<Attribute>) db.query(sql, new CollectingResultRowListener<Attribute>() {
 			@Override public Object row(ResultSet results, int rowNumber) throws SQLException {
 				add(new Attribute(
-						results.getString("src"),
-						results.getString("rel"),
-						results.getString("seq"),
+						decodeKeyField(results.getString("src")),
+						decodeKeyField(results.getString("rel")),
+						decodeKeyField(results.getString("seq")),
 						results.getString("dest"),
 						results.getString("data"),
 						results.getLong("modified")
@@ -233,7 +245,7 @@ public class MySQLStore implements ConfigurableStore {
 	}
 
 	private void addColumnMatch(StringBuilder query, String colname, Object colvalue, List<Object> args) {
-		if (null != colvalue && !Utils.same(Attribute.NO_SEQ, colvalue)) {
+		if (null != colvalue) {
 			if (args.isEmpty()) {
 				query.append(" where "); 
 			} else {
@@ -248,7 +260,7 @@ public class MySQLStore implements ConfigurableStore {
 	// TODO could be a memory hog for large stores - consdider chunking
 	@Override
 	public Iterator<Attribute> iterator() {
-		Collection<Attribute> ret = match(new Attribute(null, null, null, null));
+		Collection<Attribute> ret = match(Attribute.byNothing());
 		return ret.iterator();
 	}
 }

@@ -1,6 +1,7 @@
 package test;
 
 import java.util.Collection;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -36,6 +37,7 @@ public abstract class StoreTestCase extends TestCase {
 		
 		Entity out = store.get("E1");
 		assertNotNull(out);
+		assertEquals(1, out.size());
 		assertEquals("Frank", out.getAttributeValue("name"));
 	}
 	
@@ -53,9 +55,68 @@ public abstract class StoreTestCase extends TestCase {
 		assertNull(out.getAttributeValue("name"));
 		assertEquals("Margaret", out.getAttributeValue("wife"));
 	}
+
+	public void testAddWithoutPrevious() {
+		in = new MutableEntity("E1");
+		in.setAttribute("name", "Frank");
+		in.setAttribute("wife", "Margaret");
+		store.add(in);
+		
+		Entity out = store.get("E1");
+		assertNotNull(out);
+		assertEquals(2, out.size());
+		assertEquals("Frank", out.getAttributeValue("name"));
+		assertEquals("Margaret", out.getAttributeValue("wife"));
+	}
+
+	public void testAddOverwritesPrevious() {
+		store.put(Attribute.bySrcRelDest("E1", "name", "Waldo"));
+		
+		Entity before = store.get("E1");
+		assertNotNull(before);
+		assertEquals(1, before.size());
+		assertEquals("Waldo", before.getAttributeValue("name"));
+		
+		in = new MutableEntity("E1");
+		in.setAttribute("name", "Frank");
+		in.setAttribute("wife", "Margaret");
+		store.add(in);
+		
+		Entity out = store.get("E1");
+		assertNotNull(out);
+		assertEquals(2, out.size());
+		assertEquals("Frank", out.getAttributeValue("name"));
+		assertEquals("Margaret", out.getAttributeValue("wife"));
+	}
+
+	public void testAddExtendsPrevious() {
+		store.put(Attribute.bySrcRelSeqDest("E1", "daughter", "1", "Elizabeth"));
+		store.put(Attribute.bySrcRelSeqDest("E1", "daughter", "2", "Katherine"));
+		
+		Entity before = store.get("E1");
+		assertNotNull(before);
+		assertEquals(2, before.size());
+		Map<String, String> bdaughters = before.getAttributeValues("daughter");
+		assertEquals("Elizabeth", bdaughters.get("1"));
+		assertEquals("Katherine", bdaughters.get("2"));
+		
+		in = new MutableEntity("E1");
+		in.setAttribute("name", "Frank");
+		in.setAttribute("wife", "Margaret");
+		store.add(in);
+		
+		Entity out = store.get("E1");
+		assertNotNull(out);
+		assertEquals(4, out.size());
+		assertEquals("Frank", out.getAttributeValue("name"));
+		assertEquals("Margaret", out.getAttributeValue("wife"));
+		Map<String, String> adaughters = before.getAttributeValues("daughter");
+		assertEquals("Elizabeth", adaughters.get("1"));
+		assertEquals("Katherine", adaughters.get("2"));
+	}
 	
 	public void testPutSoleAttribute() {
-		Attribute at = new Attribute("S1", "stuff", "there");
+		Attribute at = Attribute.bySrcRelDest("S1", "stuff", "there");
 		assertNull(store.get("S1"));
 		store.put(at);
 		
@@ -64,12 +125,30 @@ public abstract class StoreTestCase extends TestCase {
 		assertEquals("there", out.getAttributeValue("stuff"));
 	}
 	
+	public void testPutSoleAttributeOverwrites() {
+		assertNull(store.get("S1"));
+		store.put(Attribute.bySrcRelDest("S1", "stuff", "there"));
+		
+		Entity out = store.get("S1");
+		assertNotNull(out);
+		assertEquals(1, out.size());
+		assertEquals("there", out.getAttributeValue("stuff"));
+		
+		store.put(Attribute.bySrcRelDest("S1", "stuff", "haha"));
+		
+		Entity next = store.get("S1");
+		assertNotNull(next);
+		assertEquals(1, next.size());
+		assertEquals("haha", next.getAttributeValue("stuff"));
+		
+	}
+	
 	public void testPutAdditionalAttribute() {
 		in = new MutableEntity("S1");
 		in.setAttribute("name", "Frank");
 		store.put(in);
 
-		Attribute at = new Attribute("S1", "stuff", "there");
+		Attribute at = Attribute.bySrcRelDest("S1", "stuff", "there");
 		Entity out = store.get("S1");
 		assertNotNull(out);
 		assertNull("there", out.getAttributeValue("stuff"));
@@ -103,13 +182,13 @@ public abstract class StoreTestCase extends TestCase {
 		in.setAttribute("name", "Margaret");
 		store.put(in);
 		
-		Collection<String> out = store.find(new Attribute(null, "name", "Frank"));
+		Collection<String> out = store.find(Attribute.byRelDest("name", "Frank"));
 		assertTrue(new Checklist<String>("E1").check(out));
 		
-		out = store.find(new Attribute(null, "name", "Margaret"));
+		out = store.find(Attribute.byRelDest("name", "Margaret"));
 		assertTrue(new Checklist<String>("E2","E3").check(out));
 		
-		out = store.find(new Attribute(null, null, "Margaret"));
+		out = store.find(Attribute.byDest("Margaret"));
 		assertTrue(new Checklist<String>("E1","E2","E3").check(out));
 	}
 	
@@ -119,76 +198,76 @@ public abstract class StoreTestCase extends TestCase {
 		in.setAttribute("wife", "Margaret");
 		store.put(in);
 		
-		Collection<String> out = store.find(new Attribute("E1", "name", null));
+		Collection<String> out = store.find(Attribute.bySrcRel("E1", "name"));
 		assertTrue(new Checklist<String>("Frank").check(out));
 		
-		out = store.find(new Attribute("E1", "wife", null));
+		out = store.find(Attribute.bySrcRelDest("E1", "wife", null));
 		assertTrue(new Checklist<String>("Margaret").check(out));
 	}
 	
 	public void testFindNone() {
-		Collection<Attribute> attributes = store.match(new Attribute(null, null, null));
+		Collection<Attribute> attributes = store.match(Attribute.bySrcRelDest(null, null, null));
 		assertTrue(attributes.isEmpty());
 	}
 	
 	public void testFindOne() {
-		store.put(new Attribute("U1", "name", "Frank"));
-		Collection<Attribute> attributes = store.match(new Attribute(null, null, null));
-		assertTrue(new Checklist<Attribute>(new Attribute("U1", "name", "Frank")).check(attributes));
+		store.put(Attribute.bySrcRelDest("U1", "name", "Frank"));
+		Collection<Attribute> attributes = store.match(Attribute.byNothing());
+		assertTrue(new Checklist<Attribute>(Attribute.bySrcRelDest("U1", "name", "Frank")).check(attributes));
 	}
 	
 	public void testFindSome() {
-		store.put(new Attribute("U1", "name", "Frank"));
-		store.put(new Attribute("U2", "name", "Margaret"));
-		store.put(new Attribute("U1", "wife", "Margaret"));
-		Collection<Attribute> attributes = store.match(new Attribute(null, null, "Margaret"));
+		store.put(Attribute.bySrcRelDest("U1", "name", "Frank"));
+		store.put(Attribute.bySrcRelDest("U2", "name", "Margaret"));
+		store.put(Attribute.bySrcRelDest("U1", "wife", "Margaret"));
+		Collection<Attribute> attributes = store.match(Attribute.bySrcRelDest(null, null, "Margaret"));
 		assertTrue(new Checklist<Attribute>(
-				new Attribute("U2", "name", "Margaret"),
-				new Attribute("U1", "wife", "Margaret")
+				Attribute.bySrcRelDest("U2", "name", "Margaret"),
+				Attribute.bySrcRelDest("U1", "wife", "Margaret")
 			).check(attributes));
 	}
 	
 	public void testExistsEmpty() {
-		assertFalse(store.exists(new Attribute(null, null, "Margaret")));
+		assertFalse(store.exists(Attribute.byDest("Margaret")));
 	}
 	
 	public void testExistsNoMatch() {
-		store.put(new Attribute("U1", "name", "Frank"));
-		assertFalse(store.exists(new Attribute(null, null, "Margaret")));
+		store.put(Attribute.bySrcRelDest("U1", "name", "Frank"));
+		assertFalse(store.exists(Attribute.byDest("Margaret")));
 	}
 	
 	public void testExistsSingleMatch() {
-		store.put(new Attribute("U1", "name", "Frank"));
-		store.put(new Attribute("U2", "name", "Margaret"));
-		assertTrue(store.exists(new Attribute(null, null, "Margaret")));
+		store.put(Attribute.bySrcRelDest("U1", "name", "Frank"));
+		store.put(Attribute.bySrcRelDest("U2", "name", "Margaret"));
+		assertTrue(store.exists(Attribute.byDest("Margaret")));
 	}
 	
 	public void testExistsMultipleMatch() {
-		store.put(new Attribute("U1", "name", "Frank"));
-		store.put(new Attribute("U2", "name", "Margaret"));
-		assertTrue(store.exists(new Attribute(null, null, "Margaret")));
-		store.put(new Attribute("U1", "wife", "Margaret"));
+		store.put(Attribute.bySrcRelDest("U1", "name", "Frank"));
+		store.put(Attribute.bySrcRelDest("U2", "name", "Margaret"));
+		assertTrue(store.exists(Attribute.byDest("Margaret")));
+		store.put(Attribute.bySrcRelDest("U1", "wife", "Margaret"));
 	}
 	
 	public void testFindOneEmpty() {
-		assertNull(store.findOne(new Attribute(null, null, "Margaret")));
+		assertNull(store.findOne(Attribute.byDest("Margaret")));
 	}
 	
 	public void testFindOneNoMatch() {
-		store.put(new Attribute("U1", "name", "Frank"));
-		assertNull(store.findOne(new Attribute(null, null, "Margaret")));
+		store.put(Attribute.bySrcRelDest("U1", "name", "Frank"));
+		assertNull(store.findOne(Attribute.byDest("Margaret")));
 	}
 	
 	public void testFindOneSingleMatch() {
-		store.put(new Attribute("U1", "name", "Frank"));
-		store.put(new Attribute("U2", "name", "Margaret"));
-		assertNotNull(store.findOne(new Attribute(null, null, "Margaret")));
+		store.put(Attribute.bySrcRelDest("U1", "name", "Frank"));
+		store.put(Attribute.bySrcRelDest("U2", "name", "Margaret"));
+		assertNotNull(store.findOne(Attribute.byDest("Margaret")));
 	}
 	
 	public void testFindOneMultipleMatch() {
-		store.put(new Attribute("U1", "name", "Frank"));
-		store.put(new Attribute("U2", "name", "Margaret"));
-		assertTrue(store.exists(new Attribute(null, null, "Margaret")));
-		assertNotNull(store.findOne(new Attribute(null, null, "Margaret")));
+		store.put(Attribute.bySrcRelDest("U1", "name", "Frank"));
+		store.put(Attribute.bySrcRelDest("U2", "name", "Margaret"));
+		assertTrue(store.exists(Attribute.byDest("Margaret")));
+		assertNotNull(store.findOne(Attribute.byDest("Margaret")));
 	}
 }

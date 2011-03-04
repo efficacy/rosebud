@@ -5,6 +5,7 @@ import java.util.Collection;
 public interface Store extends Iterable<Attribute>{
 	void put(Attribute attribute);
 	void put(Entity entity);
+	void add(Entity entity);
 	void delete(String id);
 	void clear();
 
