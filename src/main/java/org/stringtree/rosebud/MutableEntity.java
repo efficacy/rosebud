@@ -62,10 +62,6 @@ public class MutableEntity implements Entity {
 	public void setAttribute(String name, String value) {
 		setAttribute(Attribute.bySrcRelDest(id, name, value));
 	}
-
-	public void setAttribute(String name, String value, String data) {
-		setAttribute(new Attribute(id, name, "", value, data));
-	}
 	
 	@Override
 	public String getId() {
