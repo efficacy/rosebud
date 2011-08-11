@@ -1,5 +1,6 @@
 package org.stringtree.rosebud;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +25,11 @@ public class MutableEntity implements Entity {
 	public MutableEntity(String id, Collection<Attribute> collection) {
 		this(id);
 		setAttributes(collection);
+	}
+	
+	public MutableEntity(String id, Attribute... collection) {
+		this(id);
+		setAttributes(Arrays.asList(collection));
 	}
 	
 	public MutableEntity(Entity other) {
